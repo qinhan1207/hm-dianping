@@ -78,7 +78,7 @@ public class CacheClient {
         String json = stringRedisTemplate.opsForValue().get(key);
         // 2. 判断是否存在
         if (StrUtil.isBlank(json)) {
-            // 3. 存在，直接返回
+            // 3. 不存在，直接返回
             return null;
         }
         // 4.命中，需要先把json反序列化为对象
@@ -97,6 +97,17 @@ public class CacheClient {
         // 6.2. 判断获取锁是否成功
         boolean isLock = tryLock(lockKey);
         if (isLock) {
+            // 进行二次验证，看是否出现逻辑过期
+            String json2 = stringRedisTemplate.opsForValue().get(key);
+            RedisData redisData2 = JSONUtil.toBean(json2, RedisData.class);
+            R r2 = JSONUtil.toBean((JSONObject) redisData2.getData(), type);
+            LocalDateTime expireTime2 = redisData2.getExpireTime();
+            if (LocalDateTime.now().isBefore(expireTime2)) {
+                // 未出现逻辑过期
+                unlock(lockKey);
+                return r2;
+            }
+
             // 6.3. 成功，开启独立线程，实现缓存重建
             CACHE_REBUILD_EXECUTOR.submit(() -> {
                 try {

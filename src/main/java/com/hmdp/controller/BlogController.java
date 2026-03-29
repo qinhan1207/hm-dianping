@@ -70,4 +70,14 @@ public class BlogController {
     public Result queryBlogById(@PathVariable Long id) {
         return blogService.queryBlogById(id);
     }
+
+    /**
+     * 查询前五个点赞的用户
+     * @param id
+     * @return
+     */
+    @GetMapping("/likes/{id}")
+    public Result queryBlogLikes(@PathVariable("id") Long id) {
+        return blogService.queryBlogLikes(id);
+    }
 }

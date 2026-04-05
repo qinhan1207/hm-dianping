@@ -24,8 +24,9 @@ public class FollowController {
 
     /**
      * 关注功能
+     *
      * @param followUserId 要关注用户的id
-     * @param isFollow 关注还是取关
+     * @param isFollow     关注还是取关
      */
     @PutMapping("/{id}/{isFollow}")
     public Result follow(@PathVariable("id") Long followUserId, @PathVariable("isFollow") Boolean isFollow) {
@@ -34,11 +35,17 @@ public class FollowController {
 
     /**
      * 判断是否关注了
+     *
      * @param followUserId
      * @return
      */
     @GetMapping("/or/not/{id}")
     public Result isFollow(@PathVariable("id") Long followUserId) {
         return followService.isFollow(followUserId);
+    }
+
+    @GetMapping("/common/{id}")
+    public Result followCommons(@PathVariable("id") Long id) {
+        return followService.followCommons(id);
     }
 }
